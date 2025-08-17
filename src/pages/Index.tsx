@@ -1,14 +1,58 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useEffect, useState } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import AuthForm from '@/components/auth/AuthForm';
+import Dashboard from '@/components/dashboard/Dashboard';
 
 const Index = () => {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+  const { user, loading } = useAuth();
+  const [showIntro, setShowIntro] = useState(true);
+
+  useEffect(() => {
+    // Show intro animation for 2 seconds
+    const timer = setTimeout(() => {
+      setShowIntro(false);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/20 rounded-full animate-pulse">
+            <span className="text-2xl font-bold text-primary">C</span>
+          </div>
+          <div className="space-y-2">
+            <div className="h-8 w-48 bg-muted animate-pulse rounded mx-auto"></div>
+            <div className="h-4 w-32 bg-muted animate-pulse rounded mx-auto"></div>
+          </div>
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
+
+  if (showIntro) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-primary rounded-full glow animate-scale-in">
+            <span className="text-3xl font-bold text-primary-foreground">C</span>
+          </div>
+          <div className="space-y-2 animate-fade-in">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
+              CONSISTENCY
+            </h1>
+            <p className="text-lg text-muted-foreground font-medium tracking-wider">
+              WE DECIDED
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return user ? <Dashboard /> : <AuthForm />;
 };
 
 export default Index;
