@@ -12,6 +12,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { EmojiPicker } from '@/components/ui/emoji-picker';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -151,13 +152,9 @@ export default function AddTaskDialog({ onTaskAdded }: AddTaskDialogProps) {
               <Label htmlFor="emoji" className="text-right">
                 Emoji
               </Label>
-              <Input
-                id="emoji"
-                value={emoji}
-                onChange={(e) => setEmoji(e.target.value)}
-                className="col-span-3 text-center"
-                placeholder="📝"
-              />
+              <div className="col-span-3">
+                <EmojiPicker value={emoji} onChange={setEmoji} />
+              </div>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="title" className="text-right">

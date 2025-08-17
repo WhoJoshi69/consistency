@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
-import AuthForm from '@/components/auth/AuthForm';
-import Dashboard from '@/components/dashboard/Dashboard';
+import { useEffect, useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import AuthForm from "@/components/auth/AuthForm";
+import Dashboard from "@/components/dashboard/Dashboard";
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -21,7 +21,11 @@ const Index = () => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/20 rounded-full animate-pulse">
-            <span className="text-2xl font-bold text-primary">C</span>
+            <img
+              src="/consistent.svg"
+              alt="Consistency Logo"
+              className="w-8 h-8"
+            />
           </div>
           <div className="space-y-2">
             <div className="h-8 w-48 bg-muted animate-pulse rounded mx-auto"></div>
@@ -36,11 +40,11 @@ const Index = () => {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-primary rounded-full glow animate-scale-in">
-            <span className="text-3xl font-bold text-primary-foreground">C</span>
+          <div className="inline-flex items-center justify-center w-20 h-20 animate-scale-in">
+            <img src="/consistent.svg" alt="Consistency Logo" />
           </div>
           <div className="space-y-2 animate-fade-in">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
+            <h1 className="text-4xl font-bebas font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent tracking-wider">
               CONSISTENCY
             </h1>
             <p className="text-lg text-muted-foreground font-medium tracking-wider">

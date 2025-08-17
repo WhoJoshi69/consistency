@@ -78,9 +78,13 @@ All colors MUST be HSL.
     min-height: 100vh;
   }
 
-  /* Montserrat Font Classes */
+  /* Font Classes */
   .font-montserrat {
     font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  
+  .font-bebas {
+    font-family: 'Bebas Neue', cursive;
   }
 }
 

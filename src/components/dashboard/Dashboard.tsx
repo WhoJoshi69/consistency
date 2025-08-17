@@ -1,17 +1,23 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { DailyGoal, Task } from '@/types/database';
-import { useAuth } from '@/hooks/useAuth';
-import Header from './Header';
-import Footer from './Footer';
-import GoalCard from './GoalCard';
-import TaskCard from './TaskCard';
-import AddGoalDialog from './AddGoalDialog';
-import AddTaskDialog from './AddTaskDialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Target, CheckSquare, Users, TrendingUp } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { DailyGoal, Task } from "@/types/database";
+import { useAuth } from "@/hooks/useAuth";
+import Header from "./Header";
+import Footer from "./Footer";
+import GoalCard from "./GoalCard";
+import TaskCard from "./TaskCard";
+import AddGoalDialog from "./AddGoalDialog";
+import AddTaskDialog from "./AddTaskDialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Target, CheckSquare, Users, TrendingUp } from "lucide-react";
 
 export default function Dashboard() {
   const [dailyGoals, setDailyGoals] = useState<DailyGoal[]>([]);
@@ -33,28 +39,30 @@ export default function Dashboard() {
 
   const fetchDailyGoals = async () => {
     try {
-      const today = new Date().toISOString().split('T')[0];
+      const today = new Date().toISOString().split("T")[0];
       const { data, error } = await supabase
-        .from('daily_goals')
-        .select('*')
-        .eq('goal_date', today)
-        .order('created_at', { ascending: false });
+        .from("daily_goals")
+        .select("*")
+        .eq("goal_date", today)
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
-      
+
       // Fetch profile data separately
       if (data && data.length > 0) {
-        const userIds = [...new Set(data.map(goal => goal.user_id))];
+        const userIds = [...new Set(data.map((goal) => goal.user_id))];
         const { data: profiles, error: profilesError } = await supabase
-          .from('profiles')
-          .select('user_id, display_name')
-          .in('user_id', userIds);
+          .from("profiles")
+          .select("user_id, display_name")
+          .in("user_id", userIds);
 
         if (!profilesError && profiles) {
-          const profileMap = new Map(profiles.map(p => [p.user_id, p]));
-          const enrichedData = data.map(goal => ({
+          const profileMap = new Map(profiles.map((p) => [p.user_id, p]));
+          const enrichedData = data.map((goal) => ({
             ...goal,
-            profiles: profileMap.get(goal.user_id) || { display_name: 'Unknown User' }
+            profiles: profileMap.get(goal.user_id) || {
+              display_name: "Unknown User",
+            },
           }));
           setDailyGoals(enrichedData);
         } else {
@@ -64,67 +72,85 @@ export default function Dashboard() {
         setDailyGoals([]);
       }
     } catch (error) {
-      console.error('Error fetching daily goals:', error);
+      console.error("Error fetching daily goals:", error);
     }
   };
 
   const fetchTasks = async () => {
     try {
       const { data, error } = await supabase
-        .from('tasks')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .from("tasks")
+        .select("*")
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
-      
+
       // Fetch profile and category data separately
       if (data && data.length > 0) {
-        const userIds = [...new Set(data.map(task => task.user_id))];
-        const categoryIds = [...new Set(data.map(task => task.category_id).filter(Boolean))];
-        
+        const userIds = [...new Set(data.map((task) => task.user_id))];
+        const categoryIds = [
+          ...new Set(data.map((task) => task.category_id).filter(Boolean)),
+        ];
+
         const [profilesResult, categoriesResult] = await Promise.all([
-          supabase.from('profiles').select('user_id, display_name').in('user_id', userIds),
-          categoryIds.length > 0 
-            ? supabase.from('categories').select('id, name').in('id', categoryIds)
-            : { data: [], error: null }
+          supabase
+            .from("profiles")
+            .select("user_id, display_name")
+            .in("user_id", userIds),
+          categoryIds.length > 0
+            ? supabase
+                .from("categories")
+                .select("id, name")
+                .in("id", categoryIds)
+            : { data: [], error: null },
         ]);
 
-        const profileMap = new Map((profilesResult.data || []).map(p => [p.user_id, p]));
-        const categoryMap = new Map((categoriesResult.data || []).map(c => [c.id, c]));
-        
-        const enrichedData = data.map(task => ({
+        const profileMap = new Map(
+          (profilesResult.data || []).map((p) => [p.user_id, p])
+        );
+        const categoryMap = new Map(
+          (categoriesResult.data || []).map((c) => [c.id, c])
+        );
+
+        const enrichedData = data.map((task) => ({
           ...task,
-          profiles: profileMap.get(task.user_id) || { display_name: 'Unknown User' },
-          categories: task.category_id ? categoryMap.get(task.category_id) : undefined
+          profiles: profileMap.get(task.user_id) || {
+            display_name: "Unknown User",
+          },
+          categories: task.category_id
+            ? categoryMap.get(task.category_id)
+            : undefined,
         }));
-        
+
         setTasks(enrichedData);
       } else {
         setTasks([]);
       }
     } catch (error) {
-      console.error('Error fetching tasks:', error);
+      console.error("Error fetching tasks:", error);
     }
   };
 
   const getConsistencyStats = () => {
-    const myGoals = dailyGoals.filter(goal => goal.user_id === user?.id);
-    const myTasks = tasks.filter(task => task.user_id === user?.id);
-    const completedGoals = myGoals.filter(goal => goal.completed).length;
-    const completedTasks = myTasks.filter(task => task.completed).length;
+    const myGoals = dailyGoals.filter((goal) => goal.user_id === user?.id);
+    const myTasks = tasks.filter((task) => task.user_id === user?.id);
+    const completedGoals = myGoals.filter((goal) => goal.completed).length;
+    const completedTasks = myTasks.filter((task) => task.completed).length;
     const totalGoals = myGoals.length;
     const totalTasks = myTasks.length;
-    
-    const goalPercentage = totalGoals > 0 ? Math.round((completedGoals / totalGoals) * 100) : 0;
-    const taskPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
-    
+
+    const goalPercentage =
+      totalGoals > 0 ? Math.round((completedGoals / totalGoals) * 100) : 0;
+    const taskPercentage =
+      totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
     return {
       goalPercentage,
       taskPercentage,
       completedGoals,
       completedTasks,
       totalGoals,
-      totalTasks
+      totalTasks,
     };
   };
 
@@ -135,9 +161,15 @@ export default function Dashboard() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-pulse text-center">
           <div className="inline-flex items-center justify-center w-12 h-12 bg-primary/20 rounded-full mb-4">
-            <span className="text-xl font-bold text-primary">C</span>
+            <img
+              src="/consistent.svg"
+              alt="Consistency Logo"
+              className="w-6 h-6"
+            />
           </div>
-          <p className="text-muted-foreground">Loading your consistency journey...</p>
+          <p className="text-muted-foreground">
+            Loading your consistency journey...
+          </p>
         </div>
       </div>
     );
@@ -146,59 +178,67 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      
+
       <main className="flex-1 container mx-auto px-4 py-6 space-y-6">
         {/* Stats Section */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card className="consistency-card">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Today's Goals</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Today's Goals
+              </CardTitle>
               <Target className="h-4 w-4 text-primary" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.completedGoals}/{stats.totalGoals}</div>
+              <div className="text-2xl font-bold">
+                {stats.completedGoals}/{stats.totalGoals}
+              </div>
               <p className="text-xs text-muted-foreground">
                 {stats.goalPercentage}% completed
               </p>
             </CardContent>
           </Card>
-          
+
           <Card className="consistency-card">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">All Tasks</CardTitle>
               <CheckSquare className="h-4 w-4 text-primary" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.completedTasks}/{stats.totalTasks}</div>
+              <div className="text-2xl font-bold">
+                {stats.completedTasks}/{stats.totalTasks}
+              </div>
               <p className="text-xs text-muted-foreground">
                 {stats.taskPercentage}% completed
               </p>
             </CardContent>
           </Card>
-          
+
           <Card className="consistency-card">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Community</CardTitle>
               <Users className="h-4 w-4 text-primary" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{new Set(dailyGoals.map(g => g.user_id)).size}</div>
+              <div className="text-2xl font-bold">
+                {new Set(dailyGoals.map((g) => g.user_id)).size}
+              </div>
               <p className="text-xs text-muted-foreground">
                 Active members today
               </p>
             </CardContent>
           </Card>
-          
+
           <Card className="consistency-card">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Consistency</CardTitle>
               <TrendingUp className="h-4 w-4 text-primary" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{Math.round((stats.goalPercentage + stats.taskPercentage) / 2)}%</div>
-              <p className="text-xs text-muted-foreground">
-                Overall score
-              </p>
+              <div className="text-2xl font-bold">
+                {Math.round((stats.goalPercentage + stats.taskPercentage) / 2)}%
+              </div>
+              <p className="text-xs text-muted-foreground">Overall score</p>
             </CardContent>
           </Card>
         </div>
@@ -215,28 +255,35 @@ export default function Dashboard() {
             <TabsTrigger value="goals">
               Daily Goals ({dailyGoals.length})
             </TabsTrigger>
-            <TabsTrigger value="tasks">
-              One-Time Tasks ({tasks.length})
-            </TabsTrigger>
+            <TabsTrigger value="tasks">To-do list ({tasks.length})</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="goals" className="space-y-4">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <Target className="h-5 w-5 text-primary" />
                   <span>Today's Goals</span>
-                  <Badge variant="outline">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</Badge>
+                  <Badge variant="outline">
+                    {new Date().toLocaleDateString("en-US", {
+                      weekday: "long",
+                      month: "short",
+                      day: "numeric",
+                    })}
+                  </Badge>
                 </CardTitle>
                 <CardDescription>
-                  Daily goals that reset every day. Stay consistent and build better habits with community accountability.
+                  Daily goals that reset every day. Stay consistent and build
+                  better habits with community accountability.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
                 {dailyGoals.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
                     <Target className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <p>No daily goals yet. Add your first goal to get started!</p>
+                    <p>
+                      No daily goals yet. Add your first goal to get started!
+                    </p>
                   </div>
                 ) : (
                   dailyGoals.map((goal) => (
@@ -246,16 +293,17 @@ export default function Dashboard() {
               </CardContent>
             </Card>
           </TabsContent>
-          
+
           <TabsContent value="tasks" className="space-y-4">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <CheckSquare className="h-5 w-5 text-primary" />
-                  <span>One-Time Tasks</span>
+                  <span>To-do list</span>
                 </CardTitle>
                 <CardDescription>
-                  Tasks that stay until completed. Organize them by category and track your progress.
+                  Tasks that stay until completed. Organize them by category and
+                  track your progress.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -274,7 +322,7 @@ export default function Dashboard() {
           </TabsContent>
         </Tabs>
       </main>
-      
+
       <Footer />
     </div>
   );

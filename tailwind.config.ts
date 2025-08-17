@@ -20,6 +20,7 @@ export default {
 		extend: {
 			fontFamily: {
 				'montserrat': ['Montserrat', 'sans-serif'],
+				'bebas': ['Bebas Neue', 'cursive'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',

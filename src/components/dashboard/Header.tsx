@@ -37,10 +37,14 @@ export default function Header() {
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <div className="inline-flex items-center justify-center w-10 h-10 bg-primary rounded-full">
-            <span className="text-lg font-bold text-primary-foreground">C</span>
+            <img 
+              src="/consistent.svg" 
+              alt="Consistency Logo" 
+              className="w-5 h-5"
+            />
           </div>
           <div>
-            <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
+            <h1 className="text-xl font-bebas font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent tracking-wider">
               CONSISTENCY
             </h1>
             <p className="text-xs text-muted-foreground">WE DECIDED</p>

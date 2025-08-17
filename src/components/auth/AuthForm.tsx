@@ -34,9 +34,13 @@ export default function AuthForm() {
         {/* Logo Section */}
         <div className="text-center space-y-2">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-primary rounded-full mb-4 glow">
-            <span className="text-2xl font-bold text-primary-foreground">C</span>
+            <img 
+              src="/consistent.svg" 
+              alt="Consistency Logo" 
+              className="w-8 h-8"
+            />
           </div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bebas font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent tracking-wider">
             CONSISTENCY
           </h1>
           <p className="text-muted-foreground">WE DECIDED</p>
